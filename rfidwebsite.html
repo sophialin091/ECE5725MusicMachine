@@ -1,0 +1,847 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Starter Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
+
+    <!-- Custom styles for this template -->
+    <link href="starter-template.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- <script src="../../assets/js/ie-emulation-modes-warning.js"></script> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">RFID Karaoke Music Player</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#obj">Project Objective</a></li>
+            <li><a href="#design">Design</a></li>
+            <li><a href="#drawings">Drawings</a></li>
+            <li><a href="#testing">Testing</a></li>
+            <li><a href="#result">Result</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="starter-template">
+        <h1>RFID Karaoke Music Player</h1>
+        <p class="lead">A Retro-Inspired Karaoke Machine<br>A Project By Steven Sun (ss2723) and Sophia Lin (sl2383).<br>December 14th, 2024</p>
+      </div>
+
+      <hr>
+      <div class="center-block">
+          <iframe width="640" height="360" src="https://www.youtube.com/embed?v=et91Gea6CPk" frameborder="0" allowfullscreen></iframe>
+          <h4 style="text-align:center;">Demonstration Video</h4>
+      </div>
+
+      <hr id="intro">
+
+      <div style="text-align:center;">
+              <h2>Introduction</h2>
+              <p style="text-align: left;padding: 0px 30px;">We created a retro-inspired music player that uses cards to select songs, add customizations, and save music presets. Each card is custom-made and has an RFID tag attached to it. They can be read by one of the two RC522 scanners. RFID tags correspond to songs or modifiers. When song cards are placed onto the song reader slot, the corresponding song plays on the speakers. When modifier token, such as speed increase or pitch changing, are placed on the modifier reader slot, the corresponding modifier will be applied to the playing song. The presets can be saved at any time during audio playback. Then, the preset can be loaded onto a blank preset card. If this loaded card is placed on the song reader slot, the preset will play on the speakers. Saving and loading presets will be controlled by the buttons on the piTFT screen. </p>
+      </div>
+
+    <hr id='obj'>
+
+      <div class="row">
+          <div class="col-md-4" style="text-align:center;">
+          <img class="img-rounded" src="pics/cinematic.jpeg" alt="Generic placeholder image" width="100%">
+          </div>
+          <div class="col-md-8" style="font-size:18px;">
+          <h2>Project Objective:</h2>
+          <ul>
+            <li>Have two RFID scanners that will interact with RFID cards/fobs by reading/writing to them.</li>
+            <li>Be able to play songs when a song card is placed onto the song scanner and then apply audio modifications when modifier fobs are placed onto the mod scanner.</li>
+            <li>Have the ability to save presets of songs with multiple modifiers and apply them onto a preset card.</li>
+            <li>User card where users can create playlists by adding and removing songs</li>
+          </ul>
+          </div>
+      </div>
+
+    <hr id='block_diagram'>
+
+      <div style="text-align:center;">
+              <h2>High-Level Block Diagram</h2>
+              <img class="img-rounded" src="pics/block_diagram.png" alt="Generic placeholder image" width="60%">
+      </div>
+
+    <hr id='design'>
+
+      <div style="text-align:center;">
+              <h2>Design and Testing</h2>
+              <h3>RFID Setup</h3>
+              <p style="text-align: left;padding: 0px 30px;">To read and write to the two scanners, we used the MFRC522-python library. The library has two files: MFRC522.py and SimpleMFRC522.py. MFRC522.py initializes the GPIO pins for the scanners and comes with functions to read and write the tags. SimpleMFRC522.py is a simplified version of MFRC522.py that has easy-to-use functions. There are two types of read/write functions. The blocking read/write functions will stall the program until a successful read/write occurs. The non-blocking versions will try to read/write once, and move on regardless of success. Looking at the pins on the scanner, the SDA and SCK labels may cause some to think that I2C is the only option. This is not true. The SDA pin can be connected to CE and SCK can be connected to SCLK for the scanner to support the SPI protocol, which is used by the MFRC522-python library. The library intends for the scanner to be connected to SPI0, device 0. The issue is that the piTFT uses pins for all of SPI0 and also SP1, device 0. To specify the SPI channel and device, we need to use MFRC522.py instead of SimpleMFRC522.py. However, doing this would mean we wouldn’t be able to use the simpler functions. To work around this, we modified the default initialization parameters for MFRC522.py (which is used by SimpleMFRC522.py).  We had to make two copies of the library, each one with default initialization parameters corresponding to SPI connections that don't conflict with the piTFT. We could have modified the library code so we only have one version of the library, but making two copies was the fastest way to get our project up and running. We assigned the song scanner to SPI1, device 1. We assigned the mod scanner to SPI1, device 2. By default, the library uses physical board pin numbering. We changed the pin numbering to Broadcom to maintain consistency across the buttons and scanners. Doing this breaks the ISR functionality of the RC522 scanners, but that’s ok. The scanners only trigger interrupt signals when a card is detected, not when a card is taken off. Even if we used ISRs for detecting a card being placed on the scanner, we would still need a polling loop for detecting a card being taken off. Therefore, we decided not to use ISRs entirely and rely purely on polling. Initially, we did not include a polling delay because we assumed that the scanners could work continuously. However, this made the scanners very unreliable. We found that adding a delay of 350ms between every read/write operation achieved the best balance between responsiveness and reliability. We noticed that every other read operation would return None. Even if the tag is placed directly on the scanner, a series of reads will return: [song_id], None, [song_id], None, [song_id], None. We assumed that this was a hardware or the software library feature used to prevent duplicate reads. This created issues for our polling algorithm because it will stop music playback if the output of the reader is ever None. To solve this problem, we added a dummy read after each actual read. The None value assigned to the dummy variable is never used, giving us a clean output stream: [song_id], [song_id], [song_id]. Read.py is a simple code that sets up a RFID module to read cards, and print the associated card ID and stored text. This helped set up the dictionaries for Songs, Mods, and Playlists. </p></p>
+              
+              <h3>Audtool-to-Audacious Interaction</h3>
+              <p style="text-align: left;padding: 0px 30px;">One of the biggest challenges in this project was getting a python script to control audacious using audtool commands. To get a basic idea about how audtool interacts with audacious, open two terminals. In the first terminal play a song using audacious using audacious —headless [path of audio file]. In the second terminal, try audtool commands such as audtool playback-pause. You will see that the audtool commands run in the second terminal affect the playback of the song in the first terminal. For this to work, there are two requirements. The first requirement is that audacious and audtool are run in the same user environment. If audacious is run as a normal user and the audtool is run as sudo, or vice versa, it will not work. The second requirement is that audtool has a way of communicating with audacious. This communication pathway is known as dbus-x11, a message bus used for sending messages between applications. Our issue stemmed from the limitation that any python script with GPIO functionality must be run using sudo. This means that without extra care, all commands run using the subprocess library in the python script will be run in the root environment. We know this because running whoami in the user terminal returns “pi”, while running it in a sudo’ed python script returns “root”. This means that if we run audacious normally (without sudo), we violate the first requirement. Next we tried running audacious using sudo. This did not work. Running audacious using sudo means that it is unable to start a D-Bus session. Additionally, audtool commands run from the sudo’ed python script can’t create their end of the D-Bus either. This violates the second requirement. Our only option was to somehow get the sudo’ed python script to run commands in the user “pi” environment. First, we scan for all Xauthority files. These are files that keep track of the credentials of a user that log onto the server. Then, we assume that the the latest user that logged onto the server is the one using the script and return their information. We also needed to make sure that both audacious and audtool are initializing their end of the D-Bus correctly. To do this, we get a list of processes that are active on the pi. We assume that the latest process using a DBUS was initially by the user running the program and that the DBUS is still active. The first DBUS address is returned. Using these two functions, we are able to run any terminal command as if it was being run by a non-sudo user, which allows audtool and audacious to run properly.</p>
+              
+              <h3>Song Playing</h3>
+              <p style="text-align: left;padding: 0px 30px;">One of the most prominent building blocks of this project is song playing. In the code, there is a dictionary of songs, each corresponding to a specific RFID card ID. This dictionary is how the code knows which song to play when a card is placed over the reader. The main function that controls the song playing is called song_control(). This function starts playing the correct song when the scanner senses a song card and stops it when it detects the card has been taken off. This function refers to two global variables: songPlaying and currentSong. If a song is not currently playing (songPlaying == False), songPlaying is set to True, currentSong is set to the corresponding song name according to the dictionary, and the function calls the play_song() helper function. </p>
+              <p style="text-align: left;padding: 0px 30px;"> The play_song() helper function takes in a song name and plays the given song using Audacious. This function references two global variables: audaciousRunning, and currentSong. The subprocess module is used to send a command to the command prompt to run audacious in headless mode, and then play the correct song from the specific directory. The audaciousRunning variable is set to True and the currentSong is set to the given song argument. At this point, the song corresponding to the RFID card should be playing. </p>
+              
+              <h3>Audio Modifications</h3>
+              <p style="text-align: left;padding: 0px 30px;">There are five total functional audio modifications: speed, pitch, voice removal, crystallizer, and echo. When a modification fob is sensed on the mod/user scanner, the program enters the mod_control() function. This function references three global variables: songPlaying, currentSong, and saving. The function checks that if there is a mod card applied and if the mod is not already set to True in the modsApplied dictionary, then set the saving variable to False and the mod in the modApplied dictionary to True. Finally, call the applyMod() helper function.</p>
+              <p style="text-align: left;padding: 0px 30px;">The applyMod() function applies a certain audio modification to the playing song. If the mod is speed or pitch, the program uses audtool to set the speed/pitch to 1.3x greater than it was originally. If it is any other modification, sensing that mod would just toggle it between applied and not applied. </p>
+              <p style="text-align: left;padding: 0px 30px;">Another function associated with audio modifications is the remove_mod() function. This function is called when a user removes a mod fob from the scanner. If the mod applied was speed or pitch, the code would use audtool to set the values back to 1. If it is any other mod, they are turned off disabled by using an audtool command that turns off the mod enabler.The remove_all_mods() function is very similar to the remove_mod() function. It removes all applied mods, instead of one singular mod. </p>
+                            
+              <h3>Handling Presets</h3>
+              <p style="text-align: left;padding: 0px 30px;">When a preset card is detected on the RFID reader, it calls the preset_control() function. This function starts playing the preset song with its modifications when it detects the card and stops the playing when it no longer senses the card. If the program sees that there is a preset card and a song is not currently playing then it calls the handle_preset() function to play the song. If there is no card detected and a song is currently playing, it will stop the song. If no card is detected, the program will also turn all mods in the presetModApplied dictionary to be false, so that these preset mods do not linger onto the next song play. </p>              
+              <p style="text-align: left;padding: 0px 30px;">The handle_preset() function takes in the string stored on the preset card and extracts the data into a list. Then it calls the play_song() function with the relevant song and then sets each mod in the list to True in the presetModApplied dictionary. Each mod is then activated using the applyMod() function. </p>
+              
+              <h3>Saving & Loading Presets</h3>
+              <p style="text-align: left;padding: 0px 30px;">If a song/loaded preset card is placed on the song scanner and a mod is placed on the mod scanner, the user can save the combination of song and mod as a preset. This way, a song can have multiple mods applied to it. Even if a song is already saved with modifications on a preset card, the user can still add more modifications using the save presets button. Since each preset is written on the RFID, it must be in the form of a string. The preset is saved in the format ‘{song} {mod1} {mod2} … {modn}’. There are two buttons on the piTFT that are the save and load presets buttons. The code checks through the currently applied mods, the preset mods, or the already saved mods, and includes all the mods in the three that were turned on. Global variable presetSaved is set to true to indicate that there is something that can be saved and loaded. </p>
+              <p style="text-align: left;padding: 0px 30px;">If there is a preset that is saved (presetSaved == True), and the user wants to load that preset onto a separate card, they should first take off both the song and modification cards. Next they should put their preset card onto the song card reader. When the load preset button is pressed, the RFID module would write that string of preset modifications and which song it is associated with </p>
+
+              <h3>User Cards</h3>
+              <p style="text-align: left;padding: 0px 30px;">The final major component of this project is the user card. Users have the ability to create playlists using different songs. Since the user card needs to be on the scanner the entire time, the user card is not compatible with real time audio modifications. When a user card is detected, the handle_user_card() function is called. If there is already a song playing, then the program extracts the name of the file playing and gets the song title. In the handle_user_card() function, it first checks whether Audacious is running. This is to handle the case that a song has not been played before after startup and the user card is the first card placed onto the machine. If it detects Audacious is not running, then it would start Audacious in headless mode. Afterwards, it will check if the desired songs are loaded into the audtool playlist yet, and if not, would load all the songs indicated by the user in the user playlist list into the audtool playlist. Then audtool would run playback-play and start the first song of the playlist.</p>
+              
+              <h3>Adding and Removing Songs from Playlist</h3>
+              <p style="text-align: left;padding: 0px 30px;">In order to add a song to the playlist, a user card is placed on the mod/user scanner and a song card is placed onto the song scanner. The add to playlist button is pressed, and the add_song_playlist() function is called. This function appends the song name of a detected song card to the Playlist dictionary and runs the audtool command to add the song file to the playlist.  </p>
+              <p style="text-align: left;padding: 0px 30px;">To remove all instances of a song from the playlist, the function remove_song_playlist() is called to first find the indices of all the instances of the song in the user playlist list. These indices are then stored in a separate list. Then this list is used to remove songs from the audtool playlist in reverse order. Finally, if there is nothing in the user playlist list, songPlaying is set to False. </p>
+              
+              <h3>Button Controls</h3>
+              <p style="text-align: left;padding: 0px 30px;">There are two physical piTFT buttons that are used in the project. One of them is for saving presets/adding songs to the playlist. The other button is for loading presets/removing songs from the playlist. The toggle between the first button controls and the second is determined by the variable user_card, which stores the ID of a user card. If user_card is not 0, then that means there is a user card on the machine and to use the second set of button options. </p>
+              <p style="text-align: left;padding: 0px 30px;">Button detection is handled using callbacks. On the falling edge of the button inputs, the corresponding callback function is called. The bouncetime parameter deactivates the callback function from being called multiple times within a certain time frame. Through trial and error testing, we found that 300ms is a good debouncing time. </p>
+              <p style="text-align: left;padding: 0px 30px;">The instructions on the Adafruit site for installing software for the piTFT were not up-to-date, so we used a command provided in the lab 1 manual as a workaround solution. This solution required us to make changes to config.txt in the /boot file system. After making the changes, dmesg was used to check that the touch screen was installed correctly. We also created some files to support the use of touch on the piTFT in the udev rules directory. To calibrate the pointer on the piTFT, we used numbers provided by the lab 1 manual. To start the console window on the piTFT, several changes were made to the files in the etc directory. After rebooting the system, the Linux console started on the piTFT. This allows us to create a GUI on the piTFT using pygame. There are three other on screen buttons: play/pause, next song, and previous song. These buttons are controlled using pygame and interact with the user through touchscreen. In addition to these buttons, the pigame interface shows the currently playing song, the active mods, and the saved preset (if saved).</p>
+
+              <h3> Main Polling Loop Logic</h3>
+              <p style="text-align: left;padding: 0px 30px;">The first thing the main polling loop checks for is whether a user card has been placed on the mod/user scanner. If that is not the case, then it checks if there is a song card on the song reader. If there is a song card, then the next check would be to see if there was a user card just previously applied and is no longer there. If so, the program stops the song and sets user_card to 0, before starting song_control(). If no song card is detected but there is a song playing, this means that a song card has just been removed, and the program needs to stop song playback, clear the audtool playlist, reset some relevant global variables, and remove all modifiers. If there is no song playing and no song card on the scanner, the program does nothing. If none of the other options are met, the program checks for a preset card on the scanner and runs preset_control(). Finally, the program checks for modifier cards on the scanner. If a mod is detected, mod_control() is called. Otherwise, if the mod card is no longer detected but it was just previously there, then the mod is removed using remove_mod(). After all the polling for card detection, the piTFT screen is updated using pygame to include the necessary buttons, their functions, and other text that is displayed for the user. </p>
+      </div>
+
+    <hr id='result'>
+
+      <div style="text-align:center;">
+              <h2>Result</h2>
+              <img class="img-rounded" src="pics/schedule.png" alt="Generic placeholder image" width="60%">
+              <p style="text-align: left;padding: 0px 30px;">We achieved all of these goals except for creating a music video mod and implementing Crontab. We were able to get mplayer to play the video in sync with the audio and add effects such as fast forward, but in the final few days before the demonstration deadline, we found that mplayer does not work well with pygame. We were unable to get the video working while accounting for all of the possible edge case behaviors, so we cut out video mods entirely to preserve the stability of the system. 
+              </p>
+      </div>
+
+    <hr id='conclusion'>
+
+    <div style="text-align:center;">
+            <h2>Conclusion</h2>
+            <p style="text-align: left;padding: 0px 30px;"> Our project was generally able to achieve most of the functions we were aiming for. It is able to play a song and add modifiers when the corresponding RFID card/fob is placed onto the correct scanner. Our project is also able to save and load presets with multiple modifiers onto a card. We also had user cards and interacted with audtool playlists. In our project, we used many concepts taught in the course including callback functions, polling, pygame, GPIOs, and SPI interfacing. One thing we had trouble with was getting mplayer to work with pygame. We were able to successfully implement both mplayer and pygame the way we intended, but we ran into difficulties when we tried to put both together. Another issue we ran into was accounting for all the edge cases and combinations of different ways the aspects of our project can interact. We tried to account for as many different combinations as we could, but ultimately there are too many specific scenarios to account for all of them. Overall, the project was generally a success, as we were able to implement the main functions that we planned for. </p>
+    </div>
+    
+    <hr id='future'>
+
+    <div style="text-align:center;">
+            <h2>Future Work</h2>
+            <ul>
+                <li>Figure out a way to get scanners working with ISRs</li>
+                <li>Implement video mod tokens</li>
+                <li>Debug edge cases</li>
+                <li>More robust 3D-printed physical design</li>
+            </ul>
+    </div>
+
+  <hr>
+
+    <div class="row" style="text-align:center;">
+          <h2>Work Distribution</h2>
+          <div class="col-md-6" style="font-size:16px">
+              <img class="img-rounded" src="pics/steven.JPG" alt="Generic placeholder image" width="240" height="240">
+              <h3>Steven</h3>
+              <p class="lead">ss2723@cornell.edu</p>
+              <p>Steven was responsible for integrating the Audacious music player into the system, setting up the RFID readers/writers, and creating the pygame GUI on the piTFT.
+          </div>
+          <div class="col-md-6" style="font-size:16px">
+              <img class="img-rounded" src="pics/sophia.jpeg" alt="Generic placeholder image" width="240" height="240">
+              <h3>Sophia</h3>
+              <p class="lead">sl2383@cornell.edu</p>
+              <p> Sophia was responsible for implementing playlists with user cards, saving presets to the cards, and physical design.
+          </div>
+      </div>
+
+    <hr>
+      <div style="font-size:18px">
+          <h2>Parts List</h2>
+          <ul>
+              <li>Raspberry Pi 4 and piTFT:  provided in lab</li>
+              <li>Raspberry Pi Camera V2 $25.00</li>
+              <li>Speakers: provided in lab</li>
+              <li>RPi4 Breakout Board: provided in lab</li>
+              <a href="https://www.amazon.com/SunFounder-Mifare-Reader-Arduino-Raspberry/dp/B07KGBJ9VG"><li>2 x RC522 Scanners: $17.98</li></a>
+          </ul>
+          <h3>Total: $17.98</h3>
+      </div>
+      <hr>
+      <div style="font-size:18px">
+          <h2>References</h2>
+          <a href = "https://www.pygame.org/news" >Pygame Documentation</a><br>
+          <a href = "https://audacious-media-player.org/" >Audacious Manual</a><br>
+          <a href = "https://manpages.ubuntu.com/manpages/bionic/man1/audtool.1.html" >Audtool Manual</a><br>
+          <a href = "https://github.com/pimylifeup/MFRC522-python" >RC522 Library</a><br>
+      </div>
+
+    <hr>
+
+      <div class="row">
+              <h2>Code Appendix</h2>
+              <a href = "https://drive.google.com/drive/folders/1iuBqXoGYg1soYtCyHW8SHIRdUTSGs3ct?usp=share_link" >Code Repo</a><br>
+              <pre><code>
+# Steven Sun(ss2723), Sophia Lin (sl2383)
+# Lab 2, Section 403
+# Tue Oct 22
+
+import os
+import subprocess                                         
+import time                                                
+from RPi import GPIO    
+import pwd
+from pathlib import Path   
+import RPi.GPIO as GPIO
+import copy
+from mfrc522 import SimpleMFRC522 
+from mfrc5221 import SimpleMFRC5221            
+import pygame,pigame
+from pygame.locals import *
+import numpy as np
+
+# Screen Resolution
+SCREEN_WIDTH = 320
+SCREEN_HEIGHT = 240
+
+# some variables
+currentSong = None
+preset = ''
+presetSaved = False
+songPlaying = False
+videoPlaying = False
+saving = False
+songsLoaded = False
+audaciousRunning = False
+paused = False
+mods_string = ''
+user_card = 0
+
+encoding = 'utf-8'
+WHITE = (255,255,255)
+PAUSE_COLOR = (255,0,0)
+PAUSERESUME = 'Pause'
+BLUE = (0,0,255)
+os.putenv('SDL_VIDEODRV','fbcon')
+os.putenv('SDL_FBDEV', '/dev/fb0')
+os.putenv('SDL_MOUSEDRV','dummy')
+os.putenv('SDL_MOUSEDEV','/dev/null')
+os.putenv('DISPLAY','')
+
+pygame.init()
+pitft = pigame.PiTft()
+lcd = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+lcd.fill((0,0,0))
+pygame.display.update()
+font_small = pygame.font.Font(None, 25)
+pygame.mouse.set_visible(False)
+
+PAUSE_BUTTON_POS = (SCREEN_WIDTH // 2,  SCREEN_HEIGHT // 4)
+PAUSE_BUTTON_RAD = SCREEN_HEIGHT // 8
+
+NEXT_BUTTON_POS = (3 * SCREEN_WIDTH // 4, SCREEN_HEIGHT // 4)
+NEXT_BUTTON_RAD =  SCREEN_HEIGHT // 8
+
+BACK_BUTTON_POS = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 4)
+BACK_BUTTON_RAD =  SCREEN_HEIGHT // 8
+
+CURRENT_SONG_POS = (SCREEN_WIDTH // 2, 3 * SCREEN_HEIGHT // 4)
+MODS_POS = (SCREEN_WIDTH // 2, 3 * SCREEN_HEIGHT // 4 + 20)
+PRESET_POS = (SCREEN_WIDTH // 2, 3 * SCREEN_HEIGHT // 4 + 40)
+
+
+touch_buttons = {PAUSERESUME: PAUSE_BUTTON_POS, 'Next' : NEXT_BUTTON_POS, 'Back': BACK_BUTTON_POS}
+
+
+def draw_elements():
+    global currentSong
+    global preset
+    global mods_string
+
+    lcd.fill((0,0,0))
+    pygame.draw.circle(lcd, PAUSE_COLOR, PAUSE_BUTTON_POS, PAUSE_BUTTON_RAD)
+    pygame.draw.circle(lcd, BLUE, NEXT_BUTTON_POS, NEXT_BUTTON_RAD)
+    pygame.draw.circle(lcd, BLUE, BACK_BUTTON_POS, BACK_BUTTON_RAD)
+
+    for k,v in touch_buttons.items():
+        text_surface = font_small.render('%s'%k, True, WHITE)
+        rect = text_surface.get_rect(center=v)
+        lcd.blit(text_surface, rect)
+
+    # Currently Playing Song
+    text_surface = font_small.render('Currently Playing: %s'%currentSong, True, WHITE)
+    rect = text_surface.get_rect(center = CURRENT_SONG_POS)
+    lcd.blit(text_surface, rect)
+
+    # Currently Playing Song
+    text_surface = font_small.render('Preset : %s'%preset, True, WHITE)
+    rect = text_surface.get_rect(center = PRESET_POS)
+    lcd.blit(text_surface, rect)
+
+    # List of Mods
+    text_surface = font_small.render('Mods : %s'%mods_string, True, WHITE)
+    rect = text_surface.get_rect(center = MODS_POS)
+    lcd.blit(text_surface, rect)
+
+    pygame.display.update()
+
+draw_elements()
+# GPIO setup for buttons
+GPIO.setmode(GPIO.BCM)                                
+B1 = 23
+B2 = 27
+GPIO.setup(B1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(B2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+Playlists = {
+    910804321260 : [],
+    185783215622 : ['rick', 'enchanted']
+}
+
+# dictionary of songs
+Songs = {
+    703712715282 : 'race',
+    16047465181 : 'loved',
+    13528737120  : 'stay',
+    292412982142 : 'santa',
+}
+
+# dictionary of mods
+Mods = {
+    219731919120 : 'speed',
+    701524545509 : 'pitch',
+    1075873120653: 'video', 
+    263050690824 : 'voice_removal',
+    853759623429 : 'crystalizer',
+    403318964759 : 'echo'
+}
+# dictionary of non-preset mod states
+modApplied = {
+    'speed' : False, 
+    'pitch' : False,
+    'voice_removal' : False,
+    'crystalizer' : False,
+    'echo' : False,
+    'video' : False
+}
+# dictionary of preset mod states
+presetModApplied = copy.deepcopy(modApplied)
+# dictionary of preset mod states
+savingModApplied = copy.deepcopy(modApplied)
+
+def get_current_mods():
+
+    mod_list = ''
+    for m in modApplied.keys():
+        if modApplied[m] or presetModApplied[m] or savingModApplied[m]:
+            mod_list += m + ' '
+    return mod_list
+
+def checkButtonClicked(pos, rad, click):
+    pos_x, pos_y = pos
+    click_x, click_y = click
+
+    distance = np.sqrt((click_x - pos_x)**2 + (click_y - pos_y)**2)
+    return distance <= rad
+
+def B1_callback(channel):
+    global saving
+    global songsLoaded
+    global songPlaying
+
+    print(user_card)
+    if user_card:    #add song to playlist
+        songsLoaded = True
+        add_song_playlist()
+        if not songPlaying: 
+            run_audtool_command('playback-play')
+            songPlaying= True
+    else:       #saving mods
+        saving = True
+        for m in modApplied.keys():
+            if modApplied[m] or presetModApplied[m]:
+                savingModApplied[m] = True
+
+        save_preset()
+
+def B2_callback(channel):
+    if user_card:    #add song to playlist
+        remove_song_playlist()
+    else:
+        load_preset()
+
+def get_user_context():
+    """
+    Returns user information for the user that ran this script using sudo.
+
+    Returns:
+        pwd.struct_passwd: User information including username, password, UID, GID,
+        full name, home directory and shell.
+    """
+    # scan for all Xauthority files in home directory
+    xauth_paths = list(Path('/home').glob('*/.Xauthority'))
+    # get user information from the first Xauthority file it finds
+    user_info = pwd.getpwnam(xauth_paths[0].parent.name)
+    return user_info
+
+def get_dbus_session_bus_address(user_info):
+    """
+    Find DBUS session bus address by scanning a user's running processes.
+
+    Args:
+        user_info (pwd.struct_passwd): User information including username, password, UID, GID,
+        full name, home directory and shell.
+
+    Returns:
+        str: the DBUS session address
+    """
+    # Get list of processes owned by the user
+    ps_output = subprocess.check_output(['ps', '-u', user_info.pw_name, '-o', 'pid=']).decode().strip().split('\n')
+    # For each process, try to get its environment
+    for pid in ps_output:
+        with open(f'/proc/{pid.strip()}/environ', 'rb') as f:
+            environ = f.read().decode('utf-8', 'ignore').split('\0')
+            for env in environ:
+                if env.startswith('DBUS_SESSION_BUS_ADDRESS='):
+                    return env.split('=', 1)[1]
+
+
+def run_audtool_command(command):
+    """
+    Runs an audtool command
+
+    Args:
+        command (str): the string representation of the command. 
+
+    Return:
+        output (str): output in terminal
+    """
+    output = subprocess.check_output(f'{command_header} audtool {command}', shell = True)
+    return output
+    
+
+
+def audtool_speed_pitch(speedpitch, mag):
+    """
+    Change the speed or pitch of the currently playing song
+
+    Args:
+        speedpitch (str): can only by 'speed' or 'pitch', depending on what the user wants to change
+        mag (float): magitude of the speed or pitch  
+    """
+    subprocess.run(f'{command_header} audtool config-set speed-pitch:{speedpitch} {mag}', shell = True)
+
+def play_song(song):
+    """
+    Play a certain song using Audacious
+
+    Args:
+        song (str): name of the song as a string
+    """
+    global audaciousRunning
+    global currentSong
+
+    subprocess.run(f'{command_header} audacious --headless /home/pi/Music/{song}.mp3 &', shell = True)
+    audaciousRunning = True
+    currentSong = song
+
+def play_video(video):
+    """
+    Play a certain song using mplayer? VLC?
+
+    Args:
+        video (str): name of the video as a string
+    """
+    global videoPlaying
+
+    videoPlaying = True
+    timestamp = int(str(run_audtool_command('current-song-output-length-seconds'), encoding))
+    if timestamp < 0:
+        timestamp = 0
+    subprocess.run(f'sudo SDL_VIDEODRIVER=fbcon SDL_FBDEV=/dev/fb0 mplayer -ss {timestamp} -ao null -vo sdl -framedrop -input file=/home/pi/FinalProject/video_fifo /home/pi/Videos/{video}.mp4 &', shell = True, stdout=subprocess.DEVNULL, stderr = subprocess.DEVNULL)
+
+
+def toggle_mods(mod, state):
+    """
+    Toggle a certain mod on or off (not speed or pitch)
+
+    Args:
+        mod (str): the name of the mod
+        state (int): 0 means to turn the mod off, 1 means to turn it on 
+    """
+    if state == 0:
+        subprocess.run(f'{command_header} audtool plugin-enable "{mod}" off', shell = True)
+    elif state == 1:       
+        subprocess.run(f'{command_header} audtool plugin-enable "{mod}" on', shell = True)
+
+def remove_all_mods():
+    """
+    Disable all non-preset mods
+    """
+    global videoPlaying
+
+
+    for m in presetModApplied.keys():
+        presetModApplied[m] = False
+
+    for m in savingModApplied.keys():
+        savingModApplied[m] = False
+
+    for m in Mods.keys():
+        modApplied[Mods[m]] = False
+        if Mods[m] not in ['speed', 'pitch', 'video']:
+            toggle_mods(Mods[m], 0)
+    audtool_speed_pitch('speed', 1)
+    audtool_speed_pitch('pitch', 1)
+    if videoPlaying:
+        subprocess.run('echo "quit" > /home/pi/FinalProject/video_fifo', shell = True)
+        
+def save_preset():
+    """
+    Saves the current song/preset and current mod as a preset.
+    """
+    global preset
+    global presetSaved
+    if currentSong and mod_id:
+        preset = currentSong + ' '
+        for m in modApplied.keys():
+            if modApplied[m] or savingModApplied[m] or presetModApplied[m]: 
+                preset += m + ' '
+        presetSaved = True 
+        print('Preset Saved: ' + str(preset))
+    else:
+        print('Missing Mod or Song')
+
+def load_preset():
+    """
+    Loads the previously saved preset.
+    """
+    if presetSaved:
+        print('Place your blank card on the song reader.')
+        rfid_song.write(preset)
+        print('Your preset has been written!')
+    else:
+        print('No preset saved!')
+
+def handle_preset(p):
+    """
+    Start playing the song on the preset and apply preset mods
+
+    Args:
+        p (str): the string represenation of mods applied in the preset
+    """
+    global songPlaying
+    global currentSong
+    preset_list = p.split()
+    songPlaying = True
+    play_song(preset_list[0])
+    currentSong = preset_list[0]
+    for m in preset_list[1:]:
+        presetModApplied[m] = True
+        applyMod(m)
+        
+def applyMod(mod):
+    """
+    Apply a certain mod
+
+    Args: 
+        mod (str): the name of the mod
+    """
+    global videoPlaying
+    print(f'Applying {mod}')
+    if mod in ['speed', 'pitch']:
+        audtool_speed_pitch(mod, 1.3)
+        if videoPlaying:
+            subprocess.run('echo "speed 1.3" > /home/pi/FinalProject/video_fifo', shell = True)
+
+    elif mod == 'video':
+        play_video(currentSong)
+        videoPlaying = True
+    else:
+        toggle_mods(mod, 1)
+
+def remove_mod(mod):
+    """
+    Remove a certain mod
+
+    Args: 
+        mod (str): the name of the mod
+    """
+    global videoPlaying
+
+    modApplied[mod] = False
+    if mod in ['speed', 'pitch']:
+        audtool_speed_pitch(mod, 1)
+    elif mod == 'video' and videoPlaying:
+        subprocess.run('echo "quit" > /home/pi/FinalProject/video_fifo', shell = True)
+        videoPlaying = False
+    else:
+        toggle_mods(mod, 0)
+
+def song_control():
+    """
+    Starts playing the song on a song card and stops it when it is taken off the scanner
+    """
+    global songPlaying
+    global currentSong
+    if not songPlaying:
+        songPlaying = True
+        play_song(Songs[song_id])
+        currentSong = Songs[song_id]
+
+def preset_control():
+    """
+    Starts playing the preset on a preset card and stops it when it is taken off the scanner
+    """
+    global songPlaying
+    global currentSong
+    if song_id and not songPlaying:
+        handle_preset(song_text)
+    elif not song_id and songPlaying:
+        songPlaying = False
+        run_audtool_command('playback-stop')
+        currentSong = None
+    if not song_id and any(presetModApplied):
+        for m in presetModApplied.keys():
+            if presetModApplied[m]:
+                presetModApplied[m] = False
+                remove_mod(m)
+    
+def mod_control():
+    """
+    Applys the mod on a mod card and stops it when it is taken off the scanner
+    """
+    global songPlaying
+    global currentSong
+    global saving
+
+    if mod_id and not modApplied[Mods[mod_id]]:
+        saving = False
+        modApplied[Mods[mod_id]] = True
+        applyMod(Mods[mod_id])
+   
+def handle_user_card(user):
+    """
+    Plays the user's playlist in order
+
+      Args: 
+        user (int): the user number as an int (1 or 2)
+    """
+    global songsLoaded
+    global audaciousRunning
+    global songPlaying
+    global currentSong
+    global user_card
+    print('User')
+    if not audaciousRunning:
+        subprocess.run(f'{command_header} audacious --headless &', shell = True)
+        audaciousRunning = True
+        # print('audacious running')
+    if not songsLoaded and Playlists[user_card]:
+        print('loading')
+        for s in Playlists[user]:
+            run_audtool_command(f'playlist-addurl /home/pi/Music/{s}.mp3')
+        songsLoaded = True
+        run_audtool_command('playback-play')
+        songPlaying = True
+
+def add_song_playlist():
+    global songsLoaded
+    global Playlists
+    if song_id:
+        Playlists[user_card].append(Songs[song_id])
+        run_audtool_command(f'playlist-addurl /home/pi/Music/{Songs[song_id]}.mp3')
+        print('added to playlist: ' + str(Songs[song_id]))
+        print(Playlists[user_card])
+        songsLoaded = True
+
+def remove_song_playlist():
+    global songPlaying
+    index = []
+    for i, item in enumerate(Playlists[user_card]):
+        if item == Songs[song_id]:
+            index.append(i+1)
+
+    print(Playlists[user_card])
+    print(index)
+
+    for song in reversed(index):
+        print(song)
+        run_audtool_command(f'playlist-delete {song}')
+    Playlists[user_card] = [x for x in Playlists[user_card] if x != Songs[song_id]]
+
+    print(Playlists[user_card])
+    if not Playlists[user_card]:
+        songPlaying = False
+
+# Meat and Potatoes
+try:
+    # initalize song and mod reader
+    rfid_song = SimpleMFRC522()
+    rfid_mod = SimpleMFRC5221()
+
+    # Set up two buttons
+    GPIO.add_event_detect(23, GPIO.FALLING, callback = B1_callback, bouncetime=300)
+    GPIO.add_event_detect(27, GPIO.FALLING, callback = B2_callback, bouncetime=300)
+
+    # Set up DBUS
+    user_info = get_user_context()
+    dbus_addr = get_dbus_session_bus_address(user_info)
+    command_header = f'sudo -u {user_info.pw_name} env DBUS_SESSION_BUS_ADDRESS={dbus_addr}'
+    
+    # Main Loop
+    while(True):
+        time.sleep(0.35)
+
+        # tries to read song and mod cards
+        song_id, song_text = rfid_song.read_no_block()
+        mod_id, mod_text = rfid_mod.read_no_block()
+
+        # dummy read to discard unintended None return
+        dummy_read = rfid_song.read_id_no_block()
+        dummy_read = rfid_mod.read_id_no_block()
+        
+        # if card on the scanner is a user card, enter playlist
+        if mod_text and mod_text.split()[0] == 'user':
+            print('USER')
+            user_card = mod_id
+            handle_user_card(mod_id)
+            print('1')
+            if songPlaying:
+                currentSong = str(run_audtool_command('current-song-filename'), encoding)[15:]
+                currentSong = currentSong[:currentSong.index('.')]
+        # if the card on the scanner is a song card, enter song control
+        elif song_text and song_text.split()[0] == 'song':
+            print('2')
+            if user_card:
+                run_audtool_command('playback-stop')
+                songPlaying = False
+                user_card = 0
+
+            song_control()
+            print(currentSong)
+        elif not song_id and songPlaying:
+            print('3')
+            run_audtool_command('playback-stop')
+            run_audtool_command('playlist-clear')
+            PAUSE_COLOR = (255, 0, 0)
+            PAUSERESUME = 'Pause'
+            paused = False
+            songPlaying = False
+            currentSong = None
+            songsLoaded = False
+            user_card = 0
+            remove_all_mods()
+        elif not song_id:
+            print('4')
+            pass
+        else:
+            preset_control()
+
+        # mod control for mod cards only
+        if mod_text and mod_text.split()[0] == 'mod':
+            mod_control()
+            print('is mod')
+        elif not mod_id and any(modApplied.values()):
+            user_card = 0
+            for m in modApplied.keys():    
+                if modApplied[m] and not presetModApplied[m] and not savingModApplied[m]: 
+                    remove_mod(m)
+                    modApplied[m] = False
+
+        print(songPlaying)
+        print('user card' + str(user_card))
+        pitft.update()
+        # Scan touchscreen events
+        for event in pygame.event.get():
+            if(event.type is MOUSEBUTTONDOWN):
+                x,y = pygame.mouse.get_pos()
+                print(x,y)
+            elif(event.type is MOUSEBUTTONUP):
+                x,y = pygame.mouse.get_pos()
+                print(x,y)
+                #Find which quarter of the screen we're in
+                if checkButtonClicked(PAUSE_BUTTON_POS, PAUSE_BUTTON_RAD, (x, y)) and songPlaying:
+                    run_audtool_command('playback-pause')
+                    
+                    if not paused:
+                        PAUSE_COLOR = (0, 255, 0)
+                        PAUSERESUME = 'Resume'
+                        paused = True
+                    else:
+                        PAUSE_COLOR = (255, 0, 0)
+                        PAUSERESUME = 'Pause'
+                        paused = False
+                if checkButtonClicked(NEXT_BUTTON_POS, NEXT_BUTTON_RAD, (x, y)):
+                    print('NEXT')
+                    run_audtool_command('playlist-advance')
+                
+                if checkButtonClicked(BACK_BUTTON_POS, BACK_BUTTON_RAD, (x, y)):
+                    run_audtool_command('playlist-reverse')
+        mods_string = get_current_mods()
+        draw_elements()
+        print(mods_string)
+except KeyboardInterrupt:
+    # Tries to gracefully end everything
+    print("Exiting...")
+    thread_running = False
+    remove_all_mods()
+    run_audtool_command('--delete-current-playlist')
+    if songPlaying:
+        run_audtool_command('--playback-stop')
+finally:
+    del(pitft) # This cleans up the GPIOs as well     
+              </code></pre>
+      </div>
+
+    </div><!-- /.container -->
+
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->
+  </body>
+</html>
